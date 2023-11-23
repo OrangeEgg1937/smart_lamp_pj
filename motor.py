@@ -1,9 +1,8 @@
 # define the motor class
-import RPi.GPIO as GPIO
 import time
 
 # define the pwm GPIO pins
-PWM_GPIO = [12, 13, 18, 19]
+PWM_GPIO = [11, 12, 13, 18, 19, 32]
 
 class motor:
 	# define the PID controller constants
@@ -12,7 +11,7 @@ class motor:
 	Kd = 0.0
 	isPIDControl = False
 
-	def __init__(self, outputGPIO, frequency):
+	def __init__(self, outputGPIO, frequency, GPIO):
 		if outputGPIO not in PWM_GPIO:
 			raise ValueError('Invalid GPIO pin for PWM: ' + str(outputGPIO))
 
@@ -24,7 +23,7 @@ class motor:
 		self.frequency = frequency
 		self.pwm = GPIO.PWM(outputGPIO, frequency)
 
-	def setSpeed(self, speed):
+	def setAngle(self, speed):
 		# set the duty cycle
 		self.pwm.ChangeDutyCycle(speed)
 
