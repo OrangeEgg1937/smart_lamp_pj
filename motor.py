@@ -24,4 +24,4 @@ class motor:
 
 	def setAngle(self, angle):
 		# set the duty cycle
-		servo.value = angle/180
+		self.servo.value = angle/180
