@@ -1,5 +1,9 @@
 # define the motor class
+from gpiozero import Servo
+from gpiozero.pins.pigpio import PiGPIOFactory
 import time
+
+factory = PiGPIOFactory()
 
 # define the pwm GPIO pins
 PWM_GPIO = [11, 12, 13, 18, 19, 32]
@@ -11,37 +15,13 @@ class motor:
 	Kd = 0.0
 	isPIDControl = False
 
-	def __init__(self, outputGPIO, frequency, GPIO):
+	def __init__(self, outputGPIO):
 		if outputGPIO not in PWM_GPIO:
 			raise ValueError('Invalid GPIO pin for PWM: ' + str(outputGPIO))
 
-		# set the GPIO mode to board
-		GPIO.setmode(GPIO.BOARD)
-		GPIO.setup(outputGPIO, GPIO.OUT)
+		# set the servo motor
+		self.servo = Servo(outputGPIO, min_pulse_width=0.5/1000, max_pulse_width=2.5/1000, pin_factory=factory)
 
-		# set the frequency and start the PWM
-		self.frequency = frequency
-		self.pwm = GPIO.PWM(outputGPIO, frequency)
-
-	def setAngle(self, speed):
+	def setAngle(self, angle):
 		# set the duty cycle
-		self.pwm.ChangeDutyCycle(speed)
-
-	def start(self):
-		# start the PWM
-		self.pwm.start(0)
-
-	def stop(self):
-		# stop the PWM
-		self.pwm.stop()
-
-	# define the PID controller
-	def setPID(self, Kp, Ki, Kd):
-		self.Kp = Kp
-		self.Ki = Ki
-		self.Kd = Kd
-		self.isPIDControl = True
-	
-	# disable the PID controller
-	def disablePID(self):
-		self.isPIDControl = False
+		servo.value = angle/180
