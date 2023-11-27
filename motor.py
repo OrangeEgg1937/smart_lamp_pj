@@ -18,7 +18,7 @@ class motor:
 	def __init__(self, outputGPIO):
 		if outputGPIO not in PWM_GPIO:
 			raise ValueError('Invalid GPIO pin for PWM: ' + str(outputGPIO))
-
+		# BECARE THE GPIO IS NOT THE PHYSICAL LOCATION 
 		# set the servo motor
 		self.servo = Servo(outputGPIO, min_pulse_width=0.5/1000, max_pulse_width=2.5/1000, pin_factory=factory)
 
