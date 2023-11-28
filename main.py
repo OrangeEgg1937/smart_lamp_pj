@@ -1,16 +1,16 @@
 from motor import *
+from light_sensor import *
 import time
 
 # demo test for motor module
 if __name__ == '__main__':
-    # create the motor object
-    motor1 = motor(12)
+    # create a light sensor object
+    light = light_sensor(16)
 	
-    print("User mode")
+    print("Iight sensor test:")
 	
     while True:
-        angle = float(input('Enter angle between 0&180: '))
-        motor1.setAngle(angle)
+        print("Current light: ", light.getLight())
         time.sleep(2)
     
     time.sleep(2)

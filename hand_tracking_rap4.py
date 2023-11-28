@@ -3,26 +3,36 @@ from picamera2 import Picamera2
 import cv2
 import numpy as np
 import threading
+import time
+import board
+import neopixel
+from motor import *
+from light_sensor import *
+
+# Connection of the project
+# LED matrix: GPIO18 (pin 12)
+# Motor: GPIO13 (pin 33), GPIO19 (pin 35), GPIO26 (pin 37), GPIO16 (pin 36)
+# Light sensor: GPIO16 (pin 36)
+# picamera2 version
 
 class VideoCaptureThread(threading.Thread):
-    def __init__(self, src):
+    def __init__(self):
         super(VideoCaptureThread, self).__init__()
-        self.src = src
-        self.cap = cv2.VideoCapture(src)
+        self.cam = Picamera2()
+        self.cam.configure(self.cam.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
+        self.cam.start()
         self.frame = None
         self.running = True
 
     def run(self):
         while self.running:
-            ret, frame = self.cap.read()
-            if ret:
-                self.frame = frame
+            self.frame = self.cam.capture_array()
+
 
     def stop(self):
         self.running = False
         self.join()
         
-   
 def get_guester(img,list_lms):
 
     hull_index = [0,1,2,3,6,10,14,19,18,17]
@@ -66,11 +76,18 @@ def get_guester(img,list_lms):
     
     return guester
 
+def bound(x, upper = 0.0, lower = 1.0):
+	if x > upper:
+		x = upper
+	elif x < lower:
+		x = lower
+	return x
+
 if __name__ == "__main__":
-	
-	picam2 = Picamera2()
-	picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
-	picam2.start()
+
+	# creating a video capture thread
+	thread = VideoCaptureThread()
+	thread.start()
 	
 	# Import the hand related library fomr mediapipe
 	mpHand = mp.solutions.hands
@@ -83,16 +100,30 @@ if __name__ == "__main__":
 	# set the central position
 	c_x = 0
 	c_y = 0
-	c_x_UpperBound = 310;
-	c_x_LowerBound = 180;
-	c_y_UpperBound = 290;
-	c_y_LowerBound = 230;
+	c_x_UpperBound = 310
+	c_x_LowerBound = 180
+	c_y_UpperBound = 290
+	c_y_LowerBound = 230
 	
+	# declear the LED matrix
+	led_matrix = neopixel.NeoPixel(board.D18, 20, brightness=1)
+	# color parameters
+	red = 255
+	green = 255
+	blue = 255
+	bightness = 0.0
+	led_matrix.fill((red * bightness, green * bightness, blue * bightness)) # turn off all LEDs
+	isLightOn = True # whether the light is on or off
+
 	while True:
 		pos_text = ""
 		
+		# process the LED matrix
+		if isLightOn:
+			led_matrix.fill((red * bightness, green * bightness, blue * bightness))
+
 		# Get one frame
-		img = picam2.capture_array()
+		img = thread.frame
 		
 		if img is None:
 			continue
@@ -139,27 +170,29 @@ if __name__ == "__main__":
 		elif c_x > c_y_UpperBound:
 			action_text += "y=D:"
 			
-				
+			
 		print(pos_text)
 		
 		if c_guester == 1:
-			action_text = "Action 0"
+			action_text = "Light on"
+			isLightOn = True
 		elif c_guester == 2:
-			action_text = "Action 1"
+			action_text = "Light off"
+			isLightOn = False
 		elif c_guester == 3:
-			action_text = "Action 2"
+			action_text = "Brightness up"
+			bightness = bound(bightness + 0.1)
 		elif c_guester == 4:
-			action_text = "Action 3"
+			action_text = "Brightness down"
+			bightness = bound(bightness - 0.1)
 		elif c_guester == 5:
-			action_text = "Action 4"
+			action_text = "Stop sleep mode"o0
 		elif c_guester == 6:
 			action_text = "Action 5"
 		elif c_guester == 8:
 			action_text = "Action 6"
 		elif c_guester == 10:
 			action_text = "Action 7"		
-		
-		
 		
 		# According user action to process	
 		img = cv2.putText(img, text=action_text, org=(150, 250), fontFace=cv2.FONT_HERSHEY_TRIPLEX, fontScale=1, color=(0, 255, 0),thickness=3)
