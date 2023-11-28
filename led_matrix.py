@@ -1,44 +1,49 @@
-# require library
-# sudo pip3 install rpi_ws281x 
-# sudo pip3 install adafruit-circuitpython-neopixel
-# sudo python3 -m pip install --force-reinstall adafruit-blinka
+#include all necessary packages to get LEDs to work with Raspberry Pi
+import time
+import board
+import neopixel
 
-# define the led_matrix class
+#Initialise a strips variable, provide the GPIO Data Pin
+#utilised and the amount of LED Nodes on strip and brightness (0 to 1 value)
+pixels1 = neopixel.NeoPixel(board.D18, 20, brightness=1)
 
-# # define the pwm GPIO pins
-# PWM_GPIO = [11, 12, 13, 18, 19, 32]
+#Also create an arbitrary count variable
+x=0
 
-# class motor:
-# 	# define led matrix constants
-# 	length = 0
-	
-# 	def __init__(self, outputGPIO):
-# 		if outputGPIO not in PWM_GPIO:
-# 			raise ValueError('Invalid GPIO pin for PWM: ' + str(outputGPIO))
+#Focusing on a particular strip, use the command Fill to make it all a single colour
+#based on decimal code R, G, B. Number can be anything from 255 - 0. Use an RGB Colour
+#Code Chart Website to quickly identify the desired fill colour.
+pixels1.fill((0, 220, 0))
 
-# 		# set the servo motor
-# 		self.servo = Servo(outputGPIO, min_pulse_width=0.5/1000, max_pulse_width=2.5/1000, pin_factory=factory)
+#Below demonstrates how to individual address a colour to a LED Node, in this case
+#LED Node 10 and colour Blue was selected
+pixels1[10] = (0, 20, 255)
 
-# 	def setAngle(self, angle):
-# 		# set the duty cycle
-# 		servo.value = angle/180
+#Sleep for three seconds, You should now have all LEDs showing light with the first node
+#Showing a different colour
+time.sleep(4)
 
-from rpi_ws281x import *
+#Little Light slider script, will produce a nice loading bar effect that goes all the way up a small Strip 
+#and then all the way back
+#This was created using a While Loop taking advantage of that arbitrary variable to determine
+#which LED Node we will target/index with a different colour
 
-# LED strip configuration:
-LED_COUNT      = 20      # Number of LED pixels.
-LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
-#LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
-LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
-LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
-LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
-LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
-LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
+#Below will loop until variable x has a value of 35
+x = 0
+while True:
+    print(x)
+    pixels1[x] = (255, 0, 0)
+    pixels1[x-1] = (255, 0, 100)
+    pixels1[x-2] = (0, 0, 255)
+    #Add 1 to the counter
+    x=x+1
+    #Add a small time pause which will translate to 'smoothly' changing colour
+    time.sleep(0.05)
+    if x > 17:
+     x = 0
 
-strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ,LED_DMA,LED_INVERT,LED_BRIGHTNESS,LED_CHANNEL)
-strip.begin()
+#Add a brief time delay to appreciate what has happened    
+time.sleep(4)
 
-for x in range(0,LED_COUNT):
-    strip.setPixelColor(x,Color(255,0,0))
-
-strip.show()
+#Complete the script by returning all the LED to off
+pixels1.fill((0, 0, 0))
