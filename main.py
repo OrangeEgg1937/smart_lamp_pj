@@ -1,4 +1,3 @@
-from motor import *
 from light_sensor import *
 import time
 
@@ -15,8 +14,6 @@ if __name__ == '__main__':
     
     time.sleep(2)
 	
-    # stop the motor
-    motor1.stop()
 
     # clean up the GPIO
     GPIO.cleanup()

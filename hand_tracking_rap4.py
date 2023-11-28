@@ -111,16 +111,32 @@ if __name__ == "__main__":
 	red = 255
 	green = 255
 	blue = 255
-	bightness = 0.0
-	led_matrix.fill((red * bightness, green * bightness, blue * bightness)) # turn off all LEDs
+	bightness = 1.0
+	#led_matrix.fill((red * bightness, green * bightness, blue * bightness)) # turn off all LEDs
 	isLightOn = True # whether the light is on or off
+	
+	# declear light sensor
+	light = light_sensor(16)
+	currentLight = light.getLight()
+	isAlwaysOnSensor = True
+	
+	# declear timeout variables
+	isNotTimeout = True 
 
 	while True:
 		pos_text = ""
 		
+		# get the light sensor result
+		currentLight = light.getLight()
+		
 		# process the LED matrix
-		if isLightOn:
+		if (isLightOn & (currentLight & isAlwaysOnSensor)) & isNotTimeout:
+			print("TurnOnLED")
+			print("RED: ", red, " Green", green, " Blue:", blue)
 			led_matrix.fill((red * bightness, green * bightness, blue * bightness))
+		else:
+			print("TurnOffLED")
+			led_matrix.fill((0,0,0))
 
 		# Get one frame
 		img = thread.frame
@@ -186,9 +202,24 @@ if __name__ == "__main__":
 			action_text = "Brightness down"
 			bightness = bound(bightness - 0.1)
 		elif c_guester == 5:
-			action_text = "Stop sleep mode"o0
+			action_text = "Stop sleep mode"
 		elif c_guester == 6:
-			action_text = "Action 5"
+			action_text = "Switch Color"
+			if red == 255 & green == 255 & blue == 255:
+				red = 255
+				green = 0
+				blue = 0
+			elif red == 255:
+				red = 0
+				green = 255
+			elif green == 255:
+				green = 0
+				blue = 255
+			elif blue == 255:
+				print("now is blue")
+				red = 255
+				green = 255
+				blue = 255
 		elif c_guester == 8:
 			action_text = "Action 6"
 		elif c_guester == 10:
@@ -197,7 +228,7 @@ if __name__ == "__main__":
 		# According user action to process	
 		img = cv2.putText(img, text=action_text, org=(150, 250), fontFace=cv2.FONT_HERSHEY_TRIPLEX, fontScale=1, color=(0, 255, 0),thickness=3)
 		img = cv2.putText(img, text=moving_text, org=(0, 250), fontFace=cv2.FONT_HERSHEY_TRIPLEX, fontScale=1, color=(255, 0, 0),thickness=3)
-		img = cv2.putText(img, text=pos_text, org=(10, 250), fontFace=cv2.FONT_HERSHEY_TRIPLEX, fontScale=1, color=(255, 0, 255),thickness=3)
+		img = cv2.putText(img, text=pos_text, org=(30, 250), fontFace=cv2.FONT_HERSHEY_TRIPLEX, fontScale=1, color=(0, 0, 255),thickness=3)
 		
 		cv2.imshow("hands", img)
 		
