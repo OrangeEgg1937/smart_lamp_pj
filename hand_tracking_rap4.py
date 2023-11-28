@@ -122,7 +122,11 @@ if __name__ == "__main__":
 	
 	# declear timeout variables
 	isNotTimeout = True 
-
+	
+	# deinfe the motor
+	rotateMotro = motor(13)
+	currentRotateAngle = 0
+	
 	while True:
 		pos_text = ""
 		
@@ -131,8 +135,8 @@ if __name__ == "__main__":
 		
 		# process the LED matrix
 		if (isLightOn & (currentLight & isAlwaysOnSensor)) & isNotTimeout:
-			print("TurnOnLED")
-			print("RED: ", red, " Green", green, " Blue:", blue)
+			#print("TurnOnLED")
+			#print("RED: ", red, " Green", green, " Blue:", blue)
 			led_matrix.fill((red * bightness, green * bightness, blue * bightness))
 		else:
 			print("TurnOffLED")
@@ -176,15 +180,22 @@ if __name__ == "__main__":
 		moving_text = ""
 		
 		if (c_x < c_x_LowerBound) & (c_x != 0):
+			print("rotate motor C")
 			action_text += "x=R:"
 		elif c_x > c_x_UpperBound:
-			action_text += "x=L:"	
-
+			print("rotate motor AC")
+			action_text += "x=L:"
 
 		if (c_y < c_y_LowerBound) & (c_y != 0):
 			action_text += "y=U:"
+			currentRotateAngle += 5
+			currentRotateAngle = bound(currentRotateAngle, 90, -90)
+			rotateMotro.setAngle(currentRotateAngle)
 		elif c_x > c_y_UpperBound:
 			action_text += "y=D:"
+			currentRotateAngle -= 5
+			rotateMotro.setAngle(currentRotateAngle)
+			currentRotateAngle = bound(currentRotateAngle, 90, -90)
 			
 			
 		print(pos_text)
@@ -216,7 +227,7 @@ if __name__ == "__main__":
 				green = 0
 				blue = 255
 			elif blue == 255:
-				print("now is blue")
+				#print("now is blue")
 				red = 255
 				green = 255
 				blue = 255
